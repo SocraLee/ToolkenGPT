@@ -1,6 +1,12 @@
+# CodeReading
+1. llama: 核心代码在model里的functionLM
+2. funchub: 数据中的apis的python实现，应该是用于生成后的代码测试
+3. assets: 与代码项目无关
+
+
+
+
 # ToolkenGPT
-Source code for [ToolkenGPT: Augmenting Frozen Language Models with Massive Tools via Tool Embeddings](https://arxiv.org/abs/2305.11554) - NeurIPS 2023 (oral)
-![Figure](assets/figure.png)
 ## Preparation
 + Our experiments are conducted with LLaMA-13B/33B, which takes at least 2/4 GPUs of 24GB memory each.
 + Acquire the checkpoints of LLaMA from MetaAI and install all required packages. Please refer to [LLaMA official repo](https://github.com/facebookresearch/llama).

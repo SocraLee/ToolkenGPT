@@ -288,7 +288,7 @@ class FunctionLM(nn.Module):
 
             if "tar_eq" not in raw_inputs:
                 raw_inputs["tar_eq"] = ["<" + raw_inputs["api"] + ">"]
-
+            #下面的
             for s, t, eq in zip(raw_inputs["start_token_idx"], raw_inputs["end_token_idx"], raw_inputs["tar_eq"]):
                 
                 # for different data formats
@@ -299,13 +299,15 @@ class FunctionLM(nn.Module):
                     # print(op)
 
                 if op not in self.func_dict:
-                    op = op[1:-1]
+                    op = op[1:-1]#去掉了外面的[]或<>
+                # 在Toottoken的结果占位中，忽略非tool token的部分，
                 labels[s] = self.func_dict[op] + 32000
                 labels[s+1: t] = -100
             
             # labels = labels[1:]
             if only_functoken:
                 labels[labels < 32000] = -100
+            #这里expand把一个一维向量(n,)转化为了二维向量(1,n)
             inputs = raw_input_ids[:-1].expand(1, -1).to("cuda")
             labels = labels[1:].expand(1, -1).to("cuda")
 
