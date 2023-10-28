@@ -205,9 +205,9 @@ class Transformer(nn.Module):
         self.vocab_size = params.vocab_size
         self.n_layers = params.n_layers
 
-        self.tok_embeddings = ParallelEmbedding(
-            params.vocab_size, params.dim, init_method=lambda x: x
-        )
+        self.tok_embeddings = ParallelEmbedding(params.vocab_size, params.dim, init_method=lambda x: x)
+        self.func_embeddings = ParallelEmbedding(params.func_size, params.dim)
+        self.combined_emebddings = ParallelEmbedding(params.vocab_size+params.func_size, params.dim)
 
         self.layers = torch.nn.ModuleList()
         for layer_id in range(params.n_layers):
@@ -222,10 +222,13 @@ class Transformer(nn.Module):
             self.params.dim // self.params.n_heads, self.params.max_seq_len * 2
         )
 
+    def updata_embeddings(self):
+        self.combined_emebddings.weight.data[:self.params.vocab_size] = self.tok_embeddings.weight.data
+
     # @torch.inference_mode()
     def forward(self, tokens: torch.Tensor, start_pos: int):
         _bsz, seqlen = tokens.shape
-        h = self.tok_embeddings(tokens)  # (bsz, partial_seqlen, dim)
+        h = self.combined_emebddings(tokens)  # (bsz, partial_seqlen, dim)
         self.freqs_cis = self.freqs_cis.to(h.device)
         freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
 
@@ -459,7 +462,6 @@ class FunctionLM(nn.Module):
             return decoded, generation_log
         else:
             return decoded
-    
 def sample_top_p(probs, p):
     probs_sort, probs_idx = torch.sort(probs, dim=-1, descending=True)
     probs_sum = torch.cumsum(probs_sort, dim=-1)
