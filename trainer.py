@@ -19,9 +19,9 @@ class trainer():
 
     def train_one_epoch(self):
         epoch_loss = []
-        for text in tqdm(self.trainset[:10]):
-            inputs = self.tokenizer(text, return_tensors="pt")
-            labels = torch.tensor(self.tokenizer.encode(text))
+        for text in tqdm(self.trainset):
+            inputs = self.tokenizer(text, return_tensors="pt",padding=True)
+            labels = inputs.input_ids.clone()
             output = self.model(**inputs)
             # print(output.last_hidden_state.shape)
             logits = output.logits.view(-1, output.logits.shape[-1])

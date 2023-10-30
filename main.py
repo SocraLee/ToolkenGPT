@@ -1,20 +1,13 @@
+import numpy as np
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
 import torch
 from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM,BioGptForCausalLM,LlamaForCausalLM
 from utils import *
-import os
-import fire
-import json
+import os,fire,json,re
 from pathlib import Path
 from tqdm import tqdm
-import time
-import glob
-import re
 from trainer import trainer
-
-def load_dataset(path):
-    pass
-
 
 def load(model, ckpt_dir: str):
     checkpoints = [str(filepath) for filepath in Path(ckpt_dir).glob("*.pth")]
@@ -32,14 +25,13 @@ def load(model, ckpt_dir: str):
         return epoch_sort_key(checkpoints[-1])+1
 
 def main(ckpt_dir: str = './checkpoints', data_dir: str = './dataset/processed_data', lr: float = 1e-3, num_epochs: int = 20):
-
     # load dataset
     print('Loading data')
     function_tokens = load_obj(data_dir+'/function_tokens.list')
     train_document = load_obj(data_dir+'/train_document')
     train_task = load_obj(data_dir+'/train_task')
     train_dataset = train_document + train_task
-
+    train_dataset = DataLoader(train_dataset,batch_size=2,shuffle=True)
     # load model
     print('Loading model')
     decoder_based_model = 'microsoft/biogpt'
